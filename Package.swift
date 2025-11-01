@@ -1,12 +1,9 @@
-// swift-tools-version: 6.2
-// The swift-tools-version declares the minimum version of Swift required to build this package.
-
+// swift-tools-version:6.1
 import PackageDescription
 
-// 这些值将被自动化脚本更新
-let version = "1.0.0"
-let checksum = "YOUR_CHECKSUM_HERE" // 占位符
-let url = "https://kafkaliu.github.io/dianyaai-asr-ios-sdk/binaries/\(version)/DianyaaiASR.xcframework.zip" // 占位符
+let version = "0.0.4"
+let checksum = "c940530348154c986db7a6f4dc1ccca25a61c345e269e0a87d9a62345a08bf10"
+let url = "https://kafkaliu.github.io/dianyaai-asr-ios-sdk/binaries/0.0.4/DianyaaiASR.xcframework.zip"
 
 let package = Package(
     name: "DianyaaiASR",
