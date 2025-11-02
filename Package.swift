@@ -3,9 +3,9 @@
 
 import PackageDescription
 
-let version = "0.0.24"
-let checksum = "6c80131b279ae1647ec471f99d6dec376e53eb270d24d4e252267072e7907ed1"
-let url = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk/releases/download/v0.0.24/DianyaaiASR.xcframework.zip"
+let version = "0.0.25"
+let checksum = "5874a175f960cd0c78d9fc7c64dd0ea06d487f94707a0ed5a41d5c2476379902"
+let url = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk/releases/download/v0.0.25/DianyaaiASR.xcframework.zip"
 
 let package = Package(
     name: "DianyaaiASR",
