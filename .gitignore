@@ -1,0 +1,4 @@
+.DS_Store
+.build/
+**/.gemini/logs/*
+Examples/ASRDemo1/ASRDemo1.xcodeproj/project.xcworkspace/xcuserdata/kafka.xcuserdatad/UserInterfaceState.xcuserstate
