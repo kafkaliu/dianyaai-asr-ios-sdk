@@ -5,7 +5,7 @@ DianyaaiASR is an iOS SDK for integrating Dianya AI's Automatic Speech Recogniti
 ## Features
 
 - File transcription: Transcribe audio files and get the results.
-- Real-time transcription (coming soon).
+- Real-time transcription from a continuous audio stream.
 
 ## Installation
 
@@ -61,3 +61,70 @@ Task {
 ### Error Handling
 
 The `transcribeFile` method can throw errors. You should wrap the call in a `do-catch` block to handle potential errors, such as network issues or API errors.
+
+### Real-time Transcription
+
+The SDK provides a powerful and flexible API for real-time transcription from a continuous audio stream (e.g., from a microphone).
+
+The API is designed around modern Swift concurrency. You provide a stream of audio data, and in return, you get a controller object that lets you manage the transcription lifecycle (`start`, `pause`, `resume`, `stop`) and a stream of transcription results.
+
+**Example:**
+
+```swift
+import DianyaaiASR
+import Foundation
+
+// 1. Configure and initialize the API client.
+let configuration = DianyaaiASRConfiguration(authToken: "YOUR_AUTH_TOKEN")
+let api = DianyaaiASRAPI(configuration: configuration)
+
+// 2. Create an `AsyncStream` to act as your audio source.
+//    In a real app, you would get this stream from a microphone manager.
+let (audioStream, audioContinuation) = AsyncStream.makeStream(of: Data.self)
+
+// 3. Get the transcription controller by providing the audio source.
+let controller = api.transcribeStream(audioSource: audioStream)
+
+// 4. Start a task to listen for transcription results.
+Task {
+    for await result in controller.results {
+        switch result {
+        case .asrResult(let data), .asrResultPartial(let data):
+            print("Received text: \(data.text)")
+        case .error(let error):
+            print("Received an error: \(error)")
+        case .stop:
+            print("Server indicated end of transcription.")
+        }
+    }
+    print("Result stream finished.")
+}
+
+// 5. You now have full control over the lifecycle.
+
+// Start the transcription. It will begin processing audio from the stream.
+controller.start()
+
+// Push audio data into the stream.
+// (In a real app, your microphone manager would do this.)
+// audioContinuation.yield(someAudioDataChunk)
+// audioContinuation.yield(anotherAudioDataChunk)
+
+// Pause the transcription. Audio chunks sent during pause are ignored.
+controller.pause()
+
+// Resume the transcription. It will start processing audio from the
+// current point in the stream.
+controller.resume()
+
+// Push more audio data.
+// audioContinuation.yield(moreAudioData)
+
+// When you are completely done, stop the controller.
+// This will terminate the connection and release all resources.
+controller.stop()
+
+// It's also good practice to finish the audio stream continuation
+// when the audio source is depleted.
+audioContinuation.finish()
+```

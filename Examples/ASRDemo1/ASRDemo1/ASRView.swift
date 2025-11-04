@@ -38,7 +38,7 @@ struct ASRView: View {
                 }
                 .padding(.bottom, 30)
             }
-            .navigationTitle("ASR Demo")
+            .navigationTitle("文件转写 Demo")
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     NavigationLink(destination: SettingsView(viewModel: viewModel)) {
