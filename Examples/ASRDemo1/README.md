@@ -58,25 +58,27 @@ This file contains the core logic for interacting with the DianyaaiASR SDK.
     ```
 
 2.  **Transcription:**
-    The `transcribeFile(url:)` method calls the `transcribeFile` method of the SDK to perform the transcription.
+    The `transcribeFile(url:)` method calls the `transcribeFile` method of the SDK. This method now returns a `controller` and a `dataStream`. The `controller` is used to start the transcription, and the `dataStream` provides real-time status updates.
 
     ```swift
     func transcribeFile(url: URL) {
         isTranscribing = true
+        transcriptionStatus = nil
+        transcriptionResult = "Transcribing..."
+
+        let asrApi = DianyaaiASRAPI(configuration: DianyaaiASRConfiguration(authToken: self.authToken))
+        let (controller, dataStream) = asrApi.transcribeFile(fileURL: url)
         Task {
-            do {
-                if let status = try await asrApi?.transcribeFile(fileURL: url) {
-                    if status.status == "done" {
-                        self.transcriptionStatus = status
-                    } else {
-                        self.transcriptionResult = "Transcription failed: \(status.message ?? "Unknown error")"
-                    }
+            for await status in dataStream {
+                if status.type == .done {
+                    self.transcriptionStatus = status
+                } else if status.type.isFailed {
+                    self.transcriptionResult = "Transcription failed: \(status.message ?? "Unknown error")"
                 }
-            } catch {
-                self.transcriptionResult = "Transcription failed: \(error.localizedDescription)"
             }
             isTranscribing = false
         }
+        controller.start()
     }
     ```
 
@@ -93,4 +95,9 @@ This SwiftUI view provides the user interface for file selection and displaying 
         print(error.localizedDescription)
     }
 }
+```
+
+### `TranscriptionResultView.swift`
+
+This view is responsible for displaying the final transcription result in a structured and user-friendly format. It shows the transcribed text and other relevant information from the `TranscriptionStatus` object.
 ```

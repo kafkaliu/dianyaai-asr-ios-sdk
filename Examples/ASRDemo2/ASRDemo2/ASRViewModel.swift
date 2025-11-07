@@ -20,8 +20,6 @@ class ASRViewModel: ObservableObject {
     @Published var alertMessage: String = ""
     @Published var authToken: String = ""
 
-    private var asrApi: DianyaaiASRAPI?
-    private var asrStreamController: DianyaaiASR.RealTimeTranscriptionController?
     private let microphoneManager = MicrophoneManager()
     private var cancellables = Set<AnyCancellable>()
     private var resultsTask: Task<Void, Never>?
@@ -33,12 +31,6 @@ class ASRViewModel: ObservableObject {
 
     private func setupAuthToken() {
         self.authToken = UserDefaults.standard.string(forKey: "authToken") ?? ""
-        updateASRAPI()
-    }
-
-    private func updateASRAPI() {
-        let config = DianyaaiASR.DianyaaiASRConfiguration(authToken: self.authToken)
-        self.asrApi = DianyaaiASRAPI(configuration: config)
     }
 
     private func setupMicrophoneManagerBindings() {
@@ -53,10 +45,9 @@ class ASRViewModel: ObservableObject {
 
     func saveAuthToken() {
         UserDefaults.standard.set(self.authToken, forKey: "authToken")
-        updateASRAPI()
     }
 
-    func startTranscription() {
+    func startTranscription() async {
         guard !isTranscribing else { return }
 
         transcriptText = ""
@@ -64,62 +55,52 @@ class ASRViewModel: ObservableObject {
         isPaused = false
         isTranscribing = true
 
+        let asrApi = createRealTimeTranscribeClient(authToken: self.authToken)
+
         Task {
-            do {
-                // Start microphone recording
-                await microphoneManager.startRecording()
+            // Start microphone recording
+            await microphoneManager.startRecording()
 
-                // Initialize ASR stream controller
-                guard let asrApi = asrApi else {
-                    alertMessage = "ASR API is not initialized. Please check your auth token."
-                    showAlert = true
-                    isTranscribing = false
-                    return
-                }
-                self.asrStreamController = asrApi.transcribeStream(audioSource: microphoneManager.sharedAudioStream)
-
-                // Observe transcription results
-                resultsTask = Task {
-                    for await result in self.asrStreamController!.results {
-                        DispatchQueue.main.async {
-                            switch result {
-                            case .asrResult(let data):
-                                if !data.text.isEmpty {
-                                    self.transcriptText += (self.transcriptText.isEmpty ? "" : "\n") + data.text
-                                    self.partialTranscriptText = "" // Clear partial after final result
-                                }
-                            case .asrResultPartial(let data):
-                                self.partialTranscriptText = data.text
-                            case .error(let error):
-                                self.alertMessage = "Transcription error: \(error)"
-                                self.showAlert = true
-                                self.stopTranscription()
-                            case .stop:
-                                print("ASR service indicated stop.")
-                                // The service might stop on its own, but we still manage our local state
-                                // self.stopTranscription() // This might be called twice if user also taps stop
+            // Observe transcription results
+            resultsTask = Task {
+                for await result in asrApi.dataStream {
+                    switch result.data {
+                        case .asrResult(let data):
+                            if !data.text.isEmpty {
+                                self.transcriptText += (self.transcriptText.isEmpty ? "" : "\n") + data.text
+                                self.partialTranscriptText = "" // Clear partial after final result
                             }
+                        case .asrResultPartial(let data):
+                            self.partialTranscriptText = data.text
+                        case .error(let error):
+                            self.alertMessage = "Transcription error: \(error)"
+                            self.showAlert = true
+                            self.stopTranscription()
+                        case .stop:
+                            print("ASR service indicated stop.")
                         }
-                    }
-                    print("Results stream ended.")
                 }
+                print("Results stream ended.")
+            }
 
-                // Start the ASR stream
-                asrStreamController?.start()
-                print("Transcription started.")
-
-            } catch {
-                alertMessage = "Failed to start transcription: \(error.localizedDescription)"
-                showAlert = true
-                isTranscribing = false
+            // Start the ASR stream
+//            await asrApi.connect()
+            print("Transcription started.")
+        }
+        
+        Task {
+            for await data in microphoneManager.sharedAudioStream {
+                await asrApi.sendAudioChunk(data)
             }
         }
+        
+        await asrApi.connect()
     }
 
     func pauseTranscription() {
         guard isTranscribing && !isPaused else { return }
         microphoneManager.pauseRecording()
-        asrStreamController?.pause()
+//        asrStreamController?.pause()
         isPaused = true
         print("Transcription paused.")
     }
@@ -127,7 +108,7 @@ class ASRViewModel: ObservableObject {
     func resumeTranscription() {
         guard isTranscribing && isPaused else { return }
         microphoneManager.resumeRecording()
-        asrStreamController?.resume()
+//        asrStreamController?.resume()
         isPaused = false
         print("Transcription resumed.")
     }
@@ -136,8 +117,8 @@ class ASRViewModel: ObservableObject {
         guard isTranscribing else { return }
 
         microphoneManager.stopRecording()
-        asrStreamController?.stop()
-        asrStreamController = nil
+//        asrStreamController?.stop()
+//        asrStreamController = nil
         resultsTask?.cancel()
         resultsTask = nil
 

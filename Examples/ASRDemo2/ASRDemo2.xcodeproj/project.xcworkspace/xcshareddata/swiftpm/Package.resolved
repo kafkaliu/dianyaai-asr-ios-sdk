@@ -1,13 +1,13 @@
 {
-  "originHash" : "ed8b878e90d3da42dcf7251570bd46e16dffaabea23198e272f65cb1934f602e",
+  "originHash" : "3a350adbb240efdd7fa30ea6bd1f324db89a2de6f86e2b72b717150f86b62277",
   "pins" : [
     {
-      "identity" : "dianyaai-asr-ios-sdk",
+      "identity" : "starscream",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kafkaliu/dianyaai-asr-ios-sdk.git",
+      "location" : "https://github.com/daltoniam/Starscream.git",
       "state" : {
-        "revision" : "d9dd49fc1ab52772ea3357cd372ccc83c1e2a945",
-        "version" : "0.1.2"
+        "revision" : "c6bfd1af48efcc9a9ad203665db12375ba6b145a",
+        "version" : "4.0.8"
       }
     }
   ],

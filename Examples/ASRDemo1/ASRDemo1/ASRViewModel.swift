@@ -10,42 +10,48 @@ import Combine
 import AVFoundation
 import DianyaaiASR
 
-@MainActor
 class ASRViewModel: ObservableObject {
     @Published var transcriptionResult = "点击下方按钮开始转写"
     @Published var showAlert = false
     @Published var alertMessage = ""
     @Published var isTranscribing = false
-    @Published var transcriptionStatus: DianyaaiASR.TranscriptionStatus?
+    @Published var transcriptionStatus: FileTranscribeMessage?
     @Published var authToken = ""
-
-    private var asrApi: DianyaaiASRAPI?
 
     func setup() {
         self.authToken = UserDefaults.standard.string(forKey: "authToken") ?? ""
-        let config = DianyaaiASR.DianyaaiASRConfiguration(authToken: self.authToken)
-        self.asrApi = DianyaaiASRAPI(configuration: config)
     }
 
     func saveAuthToken() {
         UserDefaults.standard.set(self.authToken, forKey: "authToken")
     }
 
-    func transcribeFile(url: URL) {
-        isTranscribing = true
+    func transcribeFile(url: URL) async {
+        self.isTranscribing = true
+        let asrApi = createFileTranscribeClient(authToken: self.authToken, fileURL: url)
         Task {
-            do {
-                if let status = try await asrApi?.transcribeFile(fileURL: url) {
-                    if status.status == "done" {
-                        self.transcriptionStatus = status
-                    } else {
-                        self.transcriptionResult = "转写失败: \(status.message ?? "未知错误")"
-                    }
+            for await data in asrApi.dataStream {
+                switch data.data {
+                case .done:
+                    self.transcriptionStatus = data
+                    self.isTranscribing = false
+                case .failed, .clientTimeout:
+                    self.transcriptionResult = "转写失败: \(data.message ?? "未知错误")"
+                    self.isTranscribing = false
+                case .pending:
+                    self.transcriptionResult = "转写状态: 等待中..."
+                case .running:
+                    self.transcriptionResult = "转写状态: 进行中..."
+                case .clientError:
+                    self.transcriptionResult = "客户端错误: 未知错误"
+                    self.isTranscribing = false
+                case .unknown(let value):
+                    self.transcriptionResult = "未知状态: \(value)"
+                    self.isTranscribing = false
                 }
-            } catch {
-                self.transcriptionResult = "转写失败: \(error.localizedDescription)"
             }
-            isTranscribing = false
         }
+
+        await asrApi.start()
     }
 }

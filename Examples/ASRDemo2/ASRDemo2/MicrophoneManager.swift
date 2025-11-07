@@ -105,9 +105,6 @@ class MicrophoneManager: ObservableObject {
         // Explicitly set sample rate converter quality
         self.audioConverter?.sampleRateConverterQuality = AVAudioQuality.high.rawValue
 
-
-
-
         // Install a tap on the input node to capture audio
         audioInputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] (buffer, time) in
             guard let self = self, let converter = self.audioConverter else { return }

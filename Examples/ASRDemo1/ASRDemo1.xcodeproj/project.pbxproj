@@ -6,17 +6,26 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		1B7E35252EB86E9A00F54FFA /* DianyaaiASR in Frameworks */ = {isa = PBXBuildFile; productRef = 1B7E35242EB86E9A00F54FFA /* DianyaaiASR */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXFileReference section */
 		1BB9DF752EB8515200B6C965 /* ASRDemo1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ASRDemo1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		1B443B0D2EBDF86F003C79C0 /* Exceptions for "ASRDemo1" folder in "ASRDemo1" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1BB9DF742EB8515200B6C965 /* ASRDemo1 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1BB9DF772EB8515200B6C965 /* ASRDemo1 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1B443B0D2EBDF86F003C79C0 /* Exceptions for "ASRDemo1" folder in "ASRDemo1" target */,
+			);
 			path = ASRDemo1;
 			sourceTree = "<group>";
 		};
@@ -27,7 +36,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1B7E35252EB86E9A00F54FFA /* DianyaaiASR in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +78,6 @@
 			);
 			name = ASRDemo1;
 			packageProductDependencies = (
-				1B7E35242EB86E9A00F54FFA /* DianyaaiASR */,
 			);
 			productName = ASRDemo1;
 			productReference = 1BB9DF752EB8515200B6C965 /* ASRDemo1.app */;
@@ -101,7 +108,6 @@
 			mainGroup = 1BB9DF6C2EB8515200B6C965;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				1B7E35232EB86E9A00F54FFA /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1BB9DF762EB8515200B6C965 /* Products */;
@@ -265,6 +271,9 @@
 				DEVELOPMENT_TEAM = 25457GZ44Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ASRDemo1/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "本App需要您的麦克风权限，用于录制音频进行转写";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -301,6 +310,9 @@
 				DEVELOPMENT_TEAM = 25457GZ44Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ASRDemo1/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "本App需要您的麦克风权限，用于录制音频进行转写";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -349,25 +361,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		1B7E35232EB86E9A00F54FFA /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.29;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		1B7E35242EB86E9A00F54FFA /* DianyaaiASR */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1B7E35232EB86E9A00F54FFA /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */;
-			productName = DianyaaiASR;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 1BB9DF6D2EB8515200B6C965 /* Project object */;
 }

@@ -38,7 +38,7 @@ struct ASRView: View {
                 HStack(spacing: 20) {
                     if !viewModel.isTranscribing && !viewModel.isPaused {
                         Button("开始") {
-                            viewModel.startTranscription()
+                            Task { await viewModel.startTranscription()}
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.green)

@@ -23,7 +23,7 @@ struct WebView: UIViewRepresentable {
 }
 
 struct TranscriptionResultView: View {
-    let transcriptionStatus: DianyaaiASR.TranscriptionStatus
+    let transcriptionStatus: FileTranscribeMessage
 
     private func html(for markdown: String) -> String {
         return """
@@ -53,14 +53,14 @@ struct TranscriptionResultView: View {
             if let overview = transcriptionStatus.overviewMd {
                 WebView(htmlString: html(for: overview))
                 .tabItem {
-                    Label("Overview", systemImage: "doc.text")
+                    Label("概要", systemImage: "doc.text")
                 }
             }
 
             if let summary = transcriptionStatus.summaryMd {
                 WebView(htmlString: html(for: summary))
                 .tabItem {
-                    Label("Summary", systemImage: "doc.text.magnifyingglass")
+                    Label("总结", systemImage: "doc.text.magnifyingglass")
                 }
             }
 
@@ -76,7 +76,7 @@ struct TranscriptionResultView: View {
                     }
                 }
                 .tabItem {
-                    Label("Details", systemImage: "list.bullet")
+                    Label("详情", systemImage: "list.bullet")
                 }
             }
         }

@@ -58,25 +58,27 @@
     ```
 
 2.  **转写：**
-    `transcribeFile(url:)` 方法调用 SDK 的 `transcribeFile` 方法来执行转写。
+    `transcribeFile(url:)` 方法调用 SDK 的 `transcribeFile` 方法。该方法现在返回一个 `controller` 和一个 `dataStream`。`controller` 用于启动转写，而 `dataStream` 则提供实时的状态更新。
 
     ```swift
     func transcribeFile(url: URL) {
         isTranscribing = true
+        transcriptionStatus = nil
+        transcriptionResult = "正在转写中..."
+
+        let asrApi = DianyaaiASRAPI(configuration: DianyaaiASRConfiguration(authToken: self.authToken))
+        let (controller, dataStream) = asrApi.transcribeFile(fileURL: url)
         Task {
-            do {
-                if let status = try await asrApi?.transcribeFile(fileURL: url) {
-                    if status.status == "done" {
-                        self.transcriptionStatus = status
-                    } else {
-                        self.transcriptionResult = "转写失败: \(status.message ?? "未知错误")"
-                    }
+            for await status in dataStream {
+                if status.type == .done {
+                    self.transcriptionStatus = status
+                } else if status.type.isFailed {
+                    self.transcriptionResult = "转写失败: \(status.message ?? "未知错误")"
                 }
-            } catch {
-                self.transcriptionResult = "转写失败: \(error.localizedDescription)"
             }
             isTranscribing = false
         }
+        controller.start()
     }
     ```
 
@@ -93,4 +95,9 @@
         print(error.localizedDescription)
     }
 }
+```
+
+### `TranscriptionResultView.swift`
+
+该视图负责以结构化和用户友好的格式显示最终的转写结果。它会展示 `TranscriptionStatus` 对象中的转写文本和其他相关信息。
 ```

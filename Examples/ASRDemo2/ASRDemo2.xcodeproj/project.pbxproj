@@ -7,8 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B8F31C52EB9DFAE0003E969 /* DianyaaiASR in Frameworks */ = {isa = PBXBuildFile; productRef = 1B8F31C42EB9DFAE0003E969 /* DianyaaiASR */; };
+		1B87CFEA2EBDBFF400D88D6D /* DianyaaiASR in Frameworks */ = {isa = PBXBuildFile; productRef = 1B87CFE92EBDBFF400D88D6D /* DianyaaiASR */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		1B87CFE72EBDBF8000D88D6D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		1B8F31AF2EB9DE570003E969 /* ASRDemo2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ASRDemo2.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -27,7 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1B8F31C52EB9DFAE0003E969 /* DianyaaiASR in Frameworks */,
+				1B87CFEA2EBDBFF400D88D6D /* DianyaaiASR in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,6 +73,7 @@
 				1B8F31AB2EB9DE570003E969 /* Sources */,
 				1B8F31AC2EB9DE570003E969 /* Frameworks */,
 				1B8F31AD2EB9DE570003E969 /* Resources */,
+				1B87CFE72EBDBF8000D88D6D /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -70,7 +84,7 @@
 			);
 			name = ASRDemo2;
 			packageProductDependencies = (
-				1B8F31C42EB9DFAE0003E969 /* DianyaaiASR */,
+				1B87CFE92EBDBFF400D88D6D /* DianyaaiASR */,
 			);
 			productName = ASRDemo2;
 			productReference = 1B8F31AF2EB9DE570003E969 /* ASRDemo2.app */;
@@ -101,7 +115,7 @@
 			mainGroup = 1B8F31A62EB9DE570003E969;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				1B8F31C32EB9DFAE0003E969 /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */,
+				1B01C3872EBDBF21000DD74D /* XCLocalSwiftPackageReference "../../../dianyaai-asr-ios-sdk-source" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1B8F31B02EB9DE570003E969 /* Products */;
@@ -265,6 +279,8 @@
 				DEVELOPMENT_TEAM = 25457GZ44Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This App need Microphone";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -298,6 +314,8 @@
 				DEVELOPMENT_TEAM = 25457GZ44Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "";
+				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This App need Microphone";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -344,21 +362,17 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		1B8F31C32EB9DFAE0003E969 /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.1.1;
-			};
+/* Begin XCLocalSwiftPackageReference section */
+		1B01C3872EBDBF21000DD74D /* XCLocalSwiftPackageReference "../../../dianyaai-asr-ios-sdk-source" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = "../../../dianyaai-asr-ios-sdk-source";
 		};
-/* End XCRemoteSwiftPackageReference section */
+/* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1B8F31C42EB9DFAE0003E969 /* DianyaaiASR */ = {
+		1B87CFE92EBDBFF400D88D6D /* DianyaaiASR */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1B8F31C32EB9DFAE0003E969 /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */;
+			package = 1B01C3872EBDBF21000DD74D /* XCLocalSwiftPackageReference "../../../dianyaai-asr-ios-sdk-source" */;
 			productName = DianyaaiASR;
 		};
 /* End XCSwiftPackageProductDependency section */

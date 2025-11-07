@@ -16,7 +16,11 @@ struct ASRView: View {
         NavigationView {
             VStack(spacing: 20) {
                 if viewModel.isTranscribing {
-                    ProgressView()
+                    VStack {
+                        ProgressView()
+                        Text(viewModel.transcriptionResult)
+                            .padding()
+                    }
                 } else {
                     if let status = viewModel.transcriptionStatus {
                         TranscriptionResultView(transcriptionStatus: status)
@@ -55,7 +59,7 @@ struct ASRView: View {
             .fileImporter(isPresented: $isShowingFilePicker, allowedContentTypes: [.audio]) { result in
                 switch result {
                 case .success(let url):
-                    viewModel.transcribeFile(url: url)
+                    Task {await viewModel.transcribeFile(url: url)}
                 case .failure(let error):
                     print(error.localizedDescription)
                 }
