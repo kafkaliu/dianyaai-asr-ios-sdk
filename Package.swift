@@ -3,12 +3,12 @@
 
 import PackageDescription
 
-let version = "0.1.6"
-let checksum = "f40e5e6375635bf193dea78eb3e95ae44cfc448459cf869091641a0b966fc881"
-let url = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk/releases/download/0.1.6/DianyaaiASR.xcframework.zip"
+let version = "0.1.7"
+let checksum = "ec19d9a1d9e8aa0742c5403d9308e3e3943af45b8befa102c48eb3bf60e5daed"
+let url = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk/releases/download/0.1.7/DianyaaiASR.xcframework.zip"
 
 let package = Package(
-    name: "dianyaai-asr-ios-sdk",
+    name: "DianyaaiASR",
     platforms: [
         .iOS(.v14)
     ],
@@ -23,17 +23,17 @@ let package = Package(
         .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.8")
     ],
     targets: [
+        .target(
+            name: "DianyaaiASR",
+            dependencies: [
+                .target(name: "DianyaaiASRBinary"),
+                .product(name: "Starscream", package: "Starscream")
+            ]
+        ),
         .binaryTarget(
             name: "DianyaaiASRBinary",
             url: url,
             checksum: checksum
-        ),
-        .target(
-            name: "DianyaaiASR",
-            dependencies: [
-                "DianyaaiASRBinary",
-                .product(name: "Starscream", package: "Starscream")
-            ]
         )
     ]
 )
