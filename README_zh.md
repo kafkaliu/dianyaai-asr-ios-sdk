@@ -19,110 +19,124 @@ DianyaaiASR 是一个 iOS SDK，用于将电牙 AI 的自动语音识别（ASR�
 
 ### 文件转写
 
-要转写一个音频文件，您需要使用您的身份验证令牌初始化 `DianyaaiASRAPI`，然后调用 `transcribeFile` 方法。
+要转写一个音频文件，您需要创建一个 `FileTranscribeClient` 并调用 `start` 方法。该客户端提供两个流：`stateStream` 用于监控客户端的状态，`statusStream` 用于接收转写状态更新。
+
+**示例:**
 
 ```swift
 import DianyaaiASR
 import Foundation
 
-// 1. 使用您的身份验证令牌配置 SDK。
-let configuration = DianyaaiASRConfiguration(authToken: "YOUR_AUTH_TOKEN")
-
-// 2. 初始化 API 客户端。
-let api = DianyaaiASRAPI(configuration: configuration)
-
-// 3. 获取您要转写的音频文件的 URL。
+// 1. 获取您要转写的音频文件的 URL。
 guard let fileURL = Bundle.main.url(forResource: "myaudio", withExtension: "mp3") else {
     print("找不到音频文件。")
     return
 }
 
-// 4. 转写文件。
+// 2. 创建文件转写客户端。
+let client = createFileTranscribeClient(authToken: "YOUR_AUTH_TOKEN", fileURL: fileURL)
+
+// 3. 监听来自流的状态变化和状态更新。
 Task {
-    do {
-        let transcriptionStatus = try await api.transcribeFile(fileURL: fileURL)
-        
-        // 5. 处理转写结果。
-        if transcriptionStatus.status == "done" {
-            if let details = transcriptionStatus.details {
-                for detail in details {
-                    print("说话人 \(detail.speaker): \(detail.text) (\(detail.startTime)s - \(detail.endTime)s)")
-                }
-            }
-        } else {
-            print("转写失败，状态: \(transcriptionStatus.status)")
+    for await state in client.stateStream {
+        print("客户端状态改变: \(state)")
+        if case .failed(let error) = state {
+            print("客户端因错误失败: \(error.localizedDescription)")
         }
-    } catch {
-        print("发生错误: \(error)")
     }
 }
+
+Task {
+    for await status in client.statusStream {
+        print("收到状态: \(status.status)")
+        if status.status == "done" {
+            if let details = status.details {
+                for detail in details {
+                    print("说话人 \(detail.speaker): \(detail.text)")
+                }
+            }
+        }
+    }
+    print("状态流已结束。")
+}
+
+// 4. 启动转写流程。
+await client.start()
 ```
-
-### 错误处理
-
-`transcribeFile` 方法可能会抛出错误。您应该将调用包装在 `do-catch` 块中以处理潜在的错误，例如网络问题或 API 错误。
 
 ### 实时转写
 
-本 SDK 为来自连续音频流（例如来自麦克风）的实时转写提供了一个强大而灵活的 API。
+本 SDK 提供了一个 `RealTimeTranscribeClient`，用于从连续的音频流（例如来自麦克风）进行实时转写。该客户端使用现代 Swift 并发模型（async/await）构建，并通过 WebSocket 进行通信。
 
-该 API 围绕现代 Swift 并发模型设计。您提供一个音频数据流，作为回报，您会得到一个控制器对象，该对象可让您管理转写生命周期（`start`、`pause`、`resume`、`stop`）和一个转写结果流。
+**主要特性:**
 
-**示例：**
+-   **状态管理:** 客户端通过 `stateStream` (`AsyncStream<ClientState>`) 暴露其连接状态（例如 `.connecting`, `.connected`, `.reconnecting`, `.stopped`）。
+-   **结果流:** 转写结果通过 `messageStream` (`AsyncStream<ServerMessage>`) 传递，提供强类型的事件，如 `.asrResult` (最终结果), `.asrResultPartial` (中间结果), 和 `.error`。
+-   **自动重连:** 客户端采用指数退避策略自动处理意外断开连接。
+-   **线程安全:** 客户端是一个 `actor`，确保其所有方法和属性都可以从任何线程安全地访问。
+
+**示例:**
 
 ```swift
 import DianyaaiASR
 import Foundation
 
-// 1. 配置并初始化 API 客户端。
-let configuration = DianyaaiASRConfiguration(authToken: "YOUR_AUTH_TOKEN")
-let api = DianyaaiASRAPI(configuration: configuration)
+// 1. 初始化实时客户端。
+//    客户端是一个 actor，因此所有与其的交互都必须使用 `await`。
+let client = createRealTimeTranscribeClient(authToken: "YOUR_AUTH_TOKEN")
 
-// 2. 创建一个 `AsyncStream` 作为您的音频源。
-//    在真实的应用中，您会从一个麦克风管理器获取这个流。
-let (audioStream, audioContinuation) = AsyncStream.makeStream(of: Data.self)
+// 2. 设置任务以监听状态和消息流。
+//    在调用 connect() 之前开始监听是至关重要的。
 
-// 3. 通过提供音频源来获取转写控制器。
-let controller = api.transcribeStream(audioSource: audioStream)
-
-// 4. 启动一个任务来监听转写结果。
+// 监听连接状态变化
 Task {
-    for await result in controller.results {
-        switch result {
-        case .asrResult(let data), .asrResultPartial(let data):
-            print("收到文本: \(data.text)")
-        case .error(let error):
-            print("收到错误: \(error)")
+    for await state in client.stateStream {
+        print("客户端状态改变: \(state)")
+        if case .stopped(let error) = state {
+            if let error = error {
+                print("客户端因错误停止: \(error.localizedDescription)")
+            } else {
+                print("客户端已正常停止。")
+            }
+        }
+    }
+}
+
+// 监听来自服务器的转写消息
+Task {
+    for await message in client.messageStream {
+        switch message {
+        case .asrResult(let result):
+            print("最终结果: \(result.text)")
+        case .asrResultPartial(let result):
+            print("部分结果: \(result.text)")
+        case .error(let serverError):
+            print("服务器错误: \(serverError.data)")
         case .stop:
             print("服务器已表示转写结束。")
         }
     }
-    print("结果流已结束。")
+    print("消息流已结束。")
 }
 
-// 5. 现在您可以完全控制生命周期。
+// 3. 连接到服务器。
+await client.connect()
 
-// 开始转写。它将开始处理来自流的音频。
-controller.start()
+// 4. 发送音频数据。
+//    在真实的应用中，您会从麦克风管理器获取这些数据。
+//    客户端会缓冲数据并以正确的大小分块发送。
+//    您可以从任何线程调用 `sendAudioChunk`。
+//
+//    client.sendAudioChunk(someAudioData)
 
-// 将音频数据推入流中。
-// (在真实的应用中，您的麦克风管理器会做这件事。)
-// audioContinuation.yield(someAudioDataChunk)
-// audioContinuation.yield(anotherAudioDataChunk)
+// 5. 表示音频结束。
+//    当您完成发送音频后，调用 `stopSendingAudio()`。
+//    客户端将发送所有剩余的缓冲音频，然后向服务器发送一个特殊的
+//    “结束”消息。连接将保持打开以接收任何最终结果。
+await client.stopSendingAudio()
 
-// 暂停转写。暂停期间发送的音频块将被忽略。
-controller.pause()
-
-// 恢复转写。它将从流的当前位置开始处理音频。
-controller.resume()
-
-// 推送更多音频数据。
-// audioContinuation.yield(moreAudioData)
-
-// 当您完全完成时，停止控制器。
-// 这将终止连接并释放所有资源。
-controller.stop()
-
-// 在音频源耗尽时，完成音频流的 continuation 也是一个好习惯。
-audioContinuation.finish()
+// 6. 断开连接。
+//    当您完全完成并希望关闭连接时，调用 `disconnect()`。
+//    这将关闭 WebSocket 并释放资源。
+await client.disconnect()
 ```

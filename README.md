@@ -19,54 +19,7 @@ This project is a Swift Package. You can add it to your Xcode project by followi
 
 ### File Transcription
 
-To transcribe an audio file, you need to initialize the `DianyaaiASRAPI` with your authentication token and then call the `transcribeFile` method.
-
-```swift
-import DianyaaiASR
-import Foundation
-
-// 1. Configure the SDK with your authentication token.
-let configuration = DianyaaiASRConfiguration(authToken: "YOUR_AUTH_TOKEN")
-
-// 2. Initialize the API client.
-let api = DianyaaiASRAPI(configuration: configuration)
-
-// 3. Get the URL of the audio file you want to transcribe.
-guard let fileURL = Bundle.main.url(forResource: "myaudio", withExtension: "mp3") else {
-    print("Audio file not found.")
-    return
-}
-
-// 4. Transcribe the file.
-Task {
-    do {
-        let transcriptionStatus = try await api.transcribeFile(fileURL: fileURL)
-        
-        // 5. Handle the transcription result.
-        if transcriptionStatus.status == "done" {
-            if let details = transcriptionStatus.details {
-                for detail in details {
-                    print("Speaker \(detail.speaker): \(detail.text) (\(detail.startTime)s - \(detail.endTime)s)")
-                }
-            }
-        } else {
-            print("Transcription failed with status: \(transcriptionStatus.status)")
-        }
-    } catch {
-        print("An error occurred: \(error)")
-    }
-}
-```
-
-### Error Handling
-
-The `transcribeFile` method can throw errors. You should wrap the call in a `do-catch` block to handle potential errors, such as network issues or API errors.
-
-### Real-time Transcription
-
-The SDK provides a powerful and flexible API for real-time transcription from a continuous audio stream (e.g., from a microphone).
-
-The API is designed around modern Swift concurrency. You provide a stream of audio data, and in return, you get a controller object that lets you manage the transcription lifecycle (`start`, `pause`, `resume`, `stop`) and a stream of transcription results.
+To transcribe an audio file, you create a `FileTranscribeClient` and call the `start` method. The client provides two streams: `stateStream` for monitoring the client's state and `statusStream` for receiving transcription status updates.
 
 **Example:**
 
@@ -74,57 +27,117 @@ The API is designed around modern Swift concurrency. You provide a stream of aud
 import DianyaaiASR
 import Foundation
 
-// 1. Configure and initialize the API client.
-let configuration = DianyaaiASRConfiguration(authToken: "YOUR_AUTH_TOKEN")
-let api = DianyaaiASRAPI(configuration: configuration)
+// 1. Get the URL of the audio file you want to transcribe.
+guard let fileURL = Bundle.main.url(forResource: "myaudio", withExtension: "mp3") else {
+    print("Audio file not found.")
+    return
+}
 
-// 2. Create an `AsyncStream` to act as your audio source.
-//    In a real app, you would get this stream from a microphone manager.
-let (audioStream, audioContinuation) = AsyncStream.makeStream(of: Data.self)
+// 2. Create the file transcribe client.
+let client = createFileTranscribeClient(authToken: "YOUR_AUTH_TOKEN", fileURL: fileURL)
 
-// 3. Get the transcription controller by providing the audio source.
-let controller = api.transcribeStream(audioSource: audioStream)
-
-// 4. Start a task to listen for transcription results.
+// 3. Listen for state changes and status updates from the streams.
 Task {
-    for await result in controller.results {
-        switch result {
-        case .asrResult(let data), .asrResultPartial(let data):
-            print("Received text: \(data.text)")
-        case .error(let error):
-            print("Received an error: \(error)")
+    for await state in client.stateStream {
+        print("Client state changed: \(state)")
+        if case .failed(let error) = state {
+            print("Client failed with error: \(error.localizedDescription)")
+        }
+    }
+}
+
+Task {
+    for await status in client.statusStream {
+        print("Received status: \(status.status)")
+        if status.status == "done" {
+            if let details = status.details {
+                for detail in details {
+                    print("Speaker \(detail.speaker): \(detail.text)")
+                }
+            }
+        }
+    }
+    print("Status stream has finished.")
+}
+
+// 4. Start the transcription process.
+await client.start()
+```
+
+### Real-time Transcription
+
+The SDK provides a `RealTimeTranscribeClient` for real-time transcription from a continuous audio stream (e.g., from a microphone). The client is built using modern Swift Concurrency (async/await) and communicates over WebSocket.
+
+**Key Features:**
+
+-   **State Management:** The client exposes a `stateStream` (`AsyncStream<ClientState>`) to monitor its connection status (e.g., `.connecting`, `.connected`, `.reconnecting`, `.stopped`).
+-   **Result Streaming:** Transcription results are delivered through a `messageStream` (`AsyncStream<ServerMessage>`), which provides strongly-typed events like `.asrResult` (final), `.asrResultPartial` (interim), and `.error`.
+-   **Automatic Reconnection:** The client automatically handles unexpected disconnects with an exponential backoff strategy.
+-   **Thread Safety:** The client is an `actor`, ensuring that all its methods and properties are safe to access from any thread.
+
+**Example:**
+
+```swift
+import DianyaaiASR
+import Foundation
+
+// 1. Initialize the real-time client.
+//    The client is an actor, so all interactions with it must use `await`.
+let client = createRealTimeTranscribeClient(authToken: "YOUR_AUTH_TOKEN")
+
+// 2. Set up tasks to listen to the state and message streams.
+//    It's crucial to start listening *before* calling connect().
+
+// Listen for connection state changes
+Task {
+    for await state in client.stateStream {
+        print("Client state changed: \(state)")
+        if case .stopped(let error) = state {
+            if let error = error {
+                print("Client stopped with error: \(error.localizedDescription)")
+            } else {
+                print("Client stopped gracefully.")
+            }
+        }
+    }
+}
+
+// Listen for transcription messages from the server
+Task {
+    for await message in client.messageStream {
+        switch message {
+        case .asrResult(let result):
+            print("Final Result: \(result.text)")
+        case .asrResultPartial(let result):
+            print("Partial Result: \(result.text)")
+        case .error(let serverError):
+            print("Server Error: \(serverError.data)")
         case .stop:
             print("Server indicated end of transcription.")
         }
     }
-    print("Result stream finished.")
+    print("Message stream finished.")
 }
 
-// 5. You now have full control over the lifecycle.
+// 3. Connect to the server.
+await client.connect()
 
-// Start the transcription. It will begin processing audio from the stream.
-controller.start()
+// 4. Send audio data.
+//    In a real app, you would get this data from a microphone manager.
+//    The client buffers the data and sends it in chunks of the correct size.
+//    You can call `sendAudioChunk` from any thread.
+//
+//    client.sendAudioChunk(someAudioData)
 
-// Push audio data into the stream.
-// (In a real app, your microphone manager would do this.)
-// audioContinuation.yield(someAudioDataChunk)
-// audioContinuation.yield(anotherAudioDataChunk)
+// 5. Indicate the end of audio.
+//    When you're done sending audio, call `stopSendingAudio()`.
+//    The client will send any remaining buffered audio and then a special
+//    "end" message to the server. The connection remains open to receive
+//    any final results.
+await client.stopSendingAudio()
 
-// Pause the transcription. Audio chunks sent during pause are ignored.
-controller.pause()
-
-// Resume the transcription. It will start processing audio from the
-// current point in the stream.
-controller.resume()
-
-// Push more audio data.
-// audioContinuation.yield(moreAudioData)
-
-// When you are completely done, stop the controller.
-// This will terminate the connection and release all resources.
-controller.stop()
-
-// It's also good practice to finish the audio stream continuation
-// when the audio source is depleted.
-audioContinuation.finish()
+// 6. Disconnect.
+//    When you are completely finished and want to close the connection,
+//    call `disconnect()`. This will close the WebSocket and release resources.
+await client.disconnect()
 ```

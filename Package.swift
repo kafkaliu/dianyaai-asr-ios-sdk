@@ -3,23 +3,41 @@
 
 import PackageDescription
 
-let version = "0.1.2"
-let checksum = "15cbf68f4419f4f9051e3cc9fc7f768becb62dd11ae165047583aa3cc42b6968"
-let url = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk/releases/download/0.1.2/DianyaaiASR.xcframework.zip"
+let version = "0.1.3"
+let checksum = "580f1be03c9b8e41b420571351d0a4fa2049b8d9db16344247a1f5f8983fbdcd"
+let url = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk/releases/download/0.1.3/DianyaaiASR.xcframework.zip"
 
 let package = Package(
     name: "DianyaaiASR",
     platforms: [
-        .iOS(.v14)
+        .iOS(.v14),
     ],
     products: [
-        .library(name: "DianyaaiASR", targets: ["DianyaaiASR"])
+        // Products define the executables and libraries a package produces, making them visible to other packages.
+        .library(
+            name: "DianyaaiASR"
+            type: .dynamic
+            targets: ["DianyaaiASR"],
+    dependencies: [
+        .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.8")
     ],
+            dependencies: ["Starscream"]
+            dependencies: ["DianyaaiASR"],
     targets: [
         .binaryTarget(
-            name: "DianyaaiASR",
+            name: "DianyaaiASRBinary",
             url: url,
             checksum: checksum
+        ),
+        .target(
+            name: "DianyaaiASR",
+            dependencies: [
+                "DianyaaiASRBinary"
+                          .product(name: ".package(url:", package: ".package(url:")
+                          .product(name: "https://github.com/daltoniam/Starscream.git", package: "https://github.com/daltoniam/Starscream.git")
+                          .product(name: "from:", package: "from:")
+                          .product(name: "4.0.8)", package: "4.0.8)")
+            ]
         )
     ]
 )
