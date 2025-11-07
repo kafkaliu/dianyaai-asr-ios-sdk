@@ -1,9 +1,9 @@
-// swift-tools-version:6.1
+// swift-tools-version:5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
-let version = "0.1.9"
+let version = "0.1.10"
 let checksum = "ec19d9a1d9e8aa0742c5403d9308e3e3943af45b8befa102c48eb3bf60e5daed"
 let url = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk/releases/download/0.1.7/DianyaaiASR.xcframework.zip"
 
@@ -15,7 +15,7 @@ let package = Package(
     products: [
         .library(
             name: "DianyaaiASR",
-            targets: ["DianyaaiASR"]
+            targets: ["DianyaaiASRWrapper"]
         )
     ],
     dependencies: [
@@ -23,7 +23,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "DianyaaiASR",
+            name: "DianyaaiASRWrapper",
             dependencies: [
                 .target(name: "DianyaaiASRBinary"),
                 .product(name: "Starscream", package: "Starscream")
