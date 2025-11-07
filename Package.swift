@@ -3,9 +3,9 @@
 
 import PackageDescription
 
-let version = "0.1.3"
-let checksum = "580f1be03c9b8e41b420571351d0a4fa2049b8d9db16344247a1f5f8983fbdcd"
-let url = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk/releases/download/0.1.3/DianyaaiASR.xcframework.zip"
+let version = "0.1.4"
+let checksum = "42f03b34ae4dcd788cd977193da1de120f1b19d3ed1aebd15f3aae74971e4351"
+let url = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk/releases/download/0.1.4/DianyaaiASR.xcframework.zip"
 
 let package = Package(
     name: "DianyaaiASR",
@@ -15,14 +15,76 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "DianyaaiASR"
-            type: .dynamic
-            targets: ["DianyaaiASR"],
+            name: "DianyaaiASR",
+            type: .dynamic,
+            targets: ["DianyaaiASR"]
+        ),
+    ],
     dependencies: [
         .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.8")
     ],
+    targets: [
+        // Targets are the basic building blocks of a package, defining a module or a test suite.
+        // Targets can depend on other targets in this package and products from dependencies.
+        .target(
+            name: "DianyaaiASR",
             dependencies: ["Starscream"]
+        ),
+        .testTarget(
+            name: "DianyaaiASRTests",
             dependencies: ["DianyaaiASR"],
+            resources: [
+                .copy("IntegrationTestData")
+            ]
+        ),
+    ]
+)
+    products: [
+        // Products define the executables and libraries a package produces, making them visible to other packages.
+        .library(
+            name: "DianyaaiASR"
+            type: .dynamic
+            targets: ["DianyaaiASR"]
+        )
+    ]
+    dependencies: [
+        .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.8")
+    ]
+    targets: [
+        // Targets are the basic building blocks of a package, defining a module or a test suite.
+        // Targets can depend on other targets in this package and products from dependencies.
+        .target(
+            name: "DianyaaiASR"
+            dependencies: ["Starscream"]
+        )
+        .testTarget(
+            name: "DianyaaiASRTests"
+            dependencies: ["DianyaaiASR"]
+            resources: [
+                .copy("IntegrationTestData")
+            ]
+        )
+    ]
+),
+    dependencies: [
+        .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.8")
+    ],
+    targets: [
+        // Targets are the basic building blocks of a package, defining a module or a test suite.
+        // Targets can depend on other targets in this package and products from dependencies.
+        .target(
+            name: "DianyaaiASR",
+            dependencies: ["Starscream"]
+        ),
+        .testTarget(
+            name: "DianyaaiASRTests",
+            dependencies: ["DianyaaiASR"],
+            resources: [
+                .copy("IntegrationTestData")
+            ]
+        ),
+    ]
+)
     targets: [
         .binaryTarget(
             name: "DianyaaiASRBinary",
@@ -33,10 +95,6 @@ let package = Package(
             name: "DianyaaiASR",
             dependencies: [
                 "DianyaaiASRBinary"
-                          .product(name: ".package(url:", package: ".package(url:")
-                          .product(name: "https://github.com/daltoniam/Starscream.git", package: "https://github.com/daltoniam/Starscream.git")
-                          .product(name: "from:", package: "from:")
-                          .product(name: "4.0.8)", package: "4.0.8)")
             ]
         )
     ]
