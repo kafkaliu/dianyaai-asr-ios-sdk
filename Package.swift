@@ -18,15 +18,12 @@ let package = Package(
             targets: ["DianyaaiASRWrapper"]
         )
     ],
-    dependencies: [
-        .package(url: "https://github.com/daltoniam/Starscream.git", from: "4.0.8")
-    ],
+
     targets: [
         .target(
             name: "DianyaaiASRWrapper",
             dependencies: [
-                .target(name: "DianyaaiASRBinary"),
-                .product(name: "Starscream", package: "Starscream")
+                .target(name: "DianyaaiASRBinary")
             ]
         ),
         .binaryTarget(
