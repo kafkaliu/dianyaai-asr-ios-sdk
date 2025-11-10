@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B3452D02EBE2F93005B7FDE /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 1B3452CF2EBE2F93005B7FDE /* Starscream */; };
-		1B3452D32EBE326B005B7FDE /* DianyaaiASR in Frameworks */ = {isa = PBXBuildFile; productRef = 1B3452D22EBE326B005B7FDE /* DianyaaiASR */; };
+		1B3680A12EC1EBC3003AF7F6 /* DianyaaiASR in Frameworks */ = {isa = PBXBuildFile; productRef = 1B3680A02EC1EBC3003AF7F6 /* DianyaaiASR */; };
+		1B3680A42EC1EF48003AF7F6 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 1B3680A32EC1EF48003AF7F6 /* Starscream */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,8 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1B3452D02EBE2F93005B7FDE /* Starscream in Frameworks */,
-				1B3452D32EBE326B005B7FDE /* DianyaaiASR in Frameworks */,
+				1B3680A12EC1EBC3003AF7F6 /* DianyaaiASR in Frameworks */,
+				1B3680A42EC1EF48003AF7F6 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,8 +85,8 @@
 			);
 			name = ASRDemo1;
 			packageProductDependencies = (
-				1B3452CF2EBE2F93005B7FDE /* Starscream */,
-				1B3452D22EBE326B005B7FDE /* DianyaaiASR */,
+				1B3680A02EC1EBC3003AF7F6 /* DianyaaiASR */,
+				1B3680A32EC1EF48003AF7F6 /* Starscream */,
 			);
 			productName = ASRDemo1;
 			productReference = 1BB9DF752EB8515200B6C965 /* ASRDemo1.app */;
@@ -117,8 +117,8 @@
 			mainGroup = 1BB9DF6C2EB8515200B6C965;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				1B3452CE2EBE2F93005B7FDE /* XCRemoteSwiftPackageReference "Starscream" */,
-				1B3452D12EBE326B005B7FDE /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */,
+				1B36809F2EC1EBC3003AF7F6 /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */,
+				1B3680A22EC1EF48003AF7F6 /* XCRemoteSwiftPackageReference "Starscream" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1BB9DF762EB8515200B6C965 /* Products */;
@@ -374,7 +374,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1B3452CE2EBE2F93005B7FDE /* XCRemoteSwiftPackageReference "Starscream" */ = {
+		1B36809F2EC1EBC3003AF7F6 /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.18;
+			};
+		};
+		1B3680A22EC1EF48003AF7F6 /* XCRemoteSwiftPackageReference "Starscream" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/daltoniam/Starscream.git";
 			requirement = {
@@ -382,26 +390,18 @@
 				minimumVersion = 4.0.8;
 			};
 		};
-		1B3452D12EBE326B005B7FDE /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.13;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1B3452CF2EBE2F93005B7FDE /* Starscream */ = {
+		1B3680A02EC1EBC3003AF7F6 /* DianyaaiASR */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1B3452CE2EBE2F93005B7FDE /* XCRemoteSwiftPackageReference "Starscream" */;
-			productName = Starscream;
-		};
-		1B3452D22EBE326B005B7FDE /* DianyaaiASR */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 1B3452D12EBE326B005B7FDE /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */;
+			package = 1B36809F2EC1EBC3003AF7F6 /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */;
 			productName = DianyaaiASR;
+		};
+		1B3680A32EC1EF48003AF7F6 /* Starscream */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1B3680A22EC1EF48003AF7F6 /* XCRemoteSwiftPackageReference "Starscream" */;
+			productName = Starscream;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

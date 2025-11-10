@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/kafkaliu/dianyaai-asr-ios-sdk.git",
       "state" : {
-        "revision" : "d08b6ba73de71bacef8014e1d95cc037a7e08d9d",
-        "version" : "1.0.16"
+        "revision" : "09771a1876e7be603493d69ce04ad172680cba3b",
+        "version" : "1.0.19"
       }
     },
     {

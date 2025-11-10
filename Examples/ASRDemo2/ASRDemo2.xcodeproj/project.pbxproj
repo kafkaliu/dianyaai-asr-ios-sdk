@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1B3452F42EBE32F4005B7FDE /* DianyaaiASR in Frameworks */ = {isa = PBXBuildFile; productRef = 1B3452F32EBE32F4005B7FDE /* DianyaaiASR */; };
-		1B3452F72EBE3307005B7FDE /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 1B3452F62EBE3307005B7FDE /* Starscream */; };
+		1B4366E62EC1AE8E00FD38E8 /* DianyaaiASR in Frameworks */ = {isa = PBXBuildFile; productRef = 1B4366E52EC1AE8E00FD38E8 /* DianyaaiASR */; };
+		1B4366E92EC1AEF400FD38E8 /* Starscream in Frameworks */ = {isa = PBXBuildFile; productRef = 1B4366E82EC1AEF400FD38E8 /* Starscream */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -41,8 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1B3452F42EBE32F4005B7FDE /* DianyaaiASR in Frameworks */,
-				1B3452F72EBE3307005B7FDE /* Starscream in Frameworks */,
+				1B4366E62EC1AE8E00FD38E8 /* DianyaaiASR in Frameworks */,
+				1B4366E92EC1AEF400FD38E8 /* Starscream in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,8 +86,8 @@
 			);
 			name = ASRDemo2;
 			packageProductDependencies = (
-				1B3452F32EBE32F4005B7FDE /* DianyaaiASR */,
-				1B3452F62EBE3307005B7FDE /* Starscream */,
+				1B4366E52EC1AE8E00FD38E8 /* DianyaaiASR */,
+				1B4366E82EC1AEF400FD38E8 /* Starscream */,
 			);
 			productName = ASRDemo2;
 			productReference = 1B8F31AF2EB9DE570003E969 /* ASRDemo2.app */;
@@ -118,8 +118,8 @@
 			mainGroup = 1B8F31A62EB9DE570003E969;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				1B3452F22EBE32F4005B7FDE /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */,
-				1B3452F52EBE3307005B7FDE /* XCRemoteSwiftPackageReference "Starscream" */,
+				1B4366E42EC1AE8E00FD38E8 /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */,
+				1B4366E72EC1AEF400FD38E8 /* XCRemoteSwiftPackageReference "Starscream" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 1B8F31B02EB9DE570003E969 /* Products */;
@@ -369,15 +369,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		1B3452F22EBE32F4005B7FDE /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */ = {
+		1B4366E42EC1AE8E00FD38E8 /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kafkaliu/dianyaai-asr-ios-sdk.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.13;
+				minimumVersion = 1.0.16;
 			};
 		};
-		1B3452F52EBE3307005B7FDE /* XCRemoteSwiftPackageReference "Starscream" */ = {
+		1B4366E72EC1AEF400FD38E8 /* XCRemoteSwiftPackageReference "Starscream" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/daltoniam/Starscream.git";
 			requirement = {
@@ -388,14 +388,14 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		1B3452F32EBE32F4005B7FDE /* DianyaaiASR */ = {
+		1B4366E52EC1AE8E00FD38E8 /* DianyaaiASR */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1B3452F22EBE32F4005B7FDE /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */;
+			package = 1B4366E42EC1AE8E00FD38E8 /* XCRemoteSwiftPackageReference "dianyaai-asr-ios-sdk" */;
 			productName = DianyaaiASR;
 		};
-		1B3452F62EBE3307005B7FDE /* Starscream */ = {
+		1B4366E82EC1AEF400FD38E8 /* Starscream */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 1B3452F52EBE3307005B7FDE /* XCRemoteSwiftPackageReference "Starscream" */;
+			package = 1B4366E72EC1AEF400FD38E8 /* XCRemoteSwiftPackageReference "Starscream" */;
 			productName = Starscream;
 		};
 /* End XCSwiftPackageProductDependency section */
