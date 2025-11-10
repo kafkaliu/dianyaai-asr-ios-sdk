@@ -27,31 +27,49 @@ class ASRViewModel: ObservableObject {
     }
 
     func transcribeFile(url: URL) async {
-        self.isTranscribing = true
+        // For files that are not in the app's sandbox, we need to request access first.
+        let shouldStopAccessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if shouldStopAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        await MainActor.run {
+            self.isTranscribing = true
+            self.transcriptionStatus = nil
+        }
+
         let asrApi = createFileTranscribeClient(authToken: self.authToken, fileURL: url)
-        Task {
+
+        let processingTask = Task {
             for await data in asrApi.dataStream {
-                switch data.data {
-                case .done:
-                    self.transcriptionStatus = data
-                    self.isTranscribing = false
-                case .failed, .clientTimeout:
-                    self.transcriptionResult = "转写失败: \(data.message ?? "未知错误")"
-                    self.isTranscribing = false
-                case .pending:
-                    self.transcriptionResult = "转写状态: 等待中..."
-                case .running:
-                    self.transcriptionResult = "转写状态: 进行中..."
-                case .clientError:
-                    self.transcriptionResult = "客户端错误: 未知错误"
-                    self.isTranscribing = false
-                case .unknown(let value):
-                    self.transcriptionResult = "未知状态: \(value)"
-                    self.isTranscribing = false
+                await MainActor.run {
+                    switch data.data {
+                    case .done:
+                        self.transcriptionStatus = data
+                        self.isTranscribing = false
+                    case .failed, .clientTimeout:
+                        self.transcriptionResult = "转写失败: \(data.message ?? "未知错误")"
+                        self.isTranscribing = false
+                    case .pending:
+                        self.transcriptionResult = "转写状态: 等待中..."
+                    case .running:
+                        self.transcriptionResult = "转写状态: 进行中..."
+                    case .clientError:
+                        self.transcriptionResult = "客户端错误: 未知错误"
+                        self.isTranscribing = false
+                    case .unknown(let value):
+                        self.transcriptionResult = "未知状态: \(value)"
+                        self.isTranscribing = false
+                    }
                 }
             }
         }
 
         await asrApi.start()
+        // Wait for the stream processing to complete to ensure that we don't
+        // exit the scope of `startAccessingSecurityScopedResource` prematurely.
+        await processingTask.value
     }
 }

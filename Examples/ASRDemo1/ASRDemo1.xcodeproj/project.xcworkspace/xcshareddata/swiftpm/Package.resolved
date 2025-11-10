@@ -1,13 +1,13 @@
 {
-  "originHash" : "8202d76b3500e2acc5c36aa62ae3490a6513477396c2886001c1db41630aa50b",
+  "originHash" : "5f6b37f1516b80ccc7caec1b6e5d69d51032b45c845befb29a7817964849c162",
   "pins" : [
     {
       "identity" : "dianyaai-asr-ios-sdk",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/kafkaliu/dianyaai-asr-ios-sdk.git",
       "state" : {
-        "revision" : "ae808a9d53f0489a27d4c3ebbff931faf5d684da",
-        "version" : "1.0.13"
+        "revision" : "d08b6ba73de71bacef8014e1d95cc037a7e08d9d",
+        "version" : "1.0.16"
       }
     },
     {
