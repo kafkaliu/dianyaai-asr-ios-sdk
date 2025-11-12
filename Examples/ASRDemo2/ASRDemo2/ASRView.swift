@@ -38,7 +38,7 @@ struct ASRView: View {
                 HStack(spacing: 20) {
                     if !viewModel.isTranscribing && !viewModel.isPaused {
                         Button("开始") {
-                            Task { await viewModel.startTranscription()}
+                            Task { await viewModel.startTranscription() }
                         }
                         .buttonStyle(.borderedProminent)
                         .tint(.green)
@@ -58,7 +58,7 @@ struct ASRView: View {
 
                     if viewModel.isTranscribing || viewModel.isPaused {
                         Button("终止") {
-                            viewModel.stopTranscription()
+                            Task { await viewModel.stopTranscription() }
                         }
                         .buttonStyle(.bordered)
                         .tint(.red)
@@ -75,8 +75,17 @@ struct ASRView: View {
                 }
             }
             .alert(isPresented: $viewModel.showAlert) {
-                Alert(title: Text("错误"), message: Text(viewModel.alertMessage), dismissButton: .default(Text("确定")))
+                Alert(
+                    title: Text("错误"), message: Text(viewModel.alertMessage),
+                    dismissButton: .default(Text("确定")))
             }
+            // .alert(isPresented: $viewModel.showFileSavedAlert) {
+            //     Alert(
+            //         title: Text("文件已保存"),
+            //         message: Text("录音已保存为：\n\(viewModel.savedFileName ?? "N/A")"),
+            //         dismissButton: .default(Text("确定"))
+            //     )
+            // }
         }
     }
 }

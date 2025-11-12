@@ -1,9 +1,11 @@
-
-import Foundation
 import AVFoundation
 import Combine
+import Foundation
+import OSLog
 
 class MicrophoneManager: ObservableObject {
+    private static let subsystem = "com.dianyaai.DianyaaiASR.Examples.ASRDemo2"
+    private static let `default` = os.Logger(subsystem: subsystem, category: "MicrophoneManager")
     @Published var isRecording = false
     @Published var errorMessage: String?
 
@@ -11,6 +13,7 @@ class MicrophoneManager: ObservableObject {
     private var audioInputNode: AVAudioInputNode?
     private var audioStreamContinuation: AsyncStream<Data>.Continuation?
     private var audioStream: AsyncStream<Data>?
+    private var pcmData: Data?
 
     // Public AsyncStream for audio data
     var sharedAudioStream: AsyncStream<Data> {
@@ -24,7 +27,7 @@ class MicrophoneManager: ObservableObject {
         }
     }
 
-    private var audioConverter: AVAudioConverter? // Declare converter here
+    private var audioConverter: AVAudioConverter?  // Declare converter here
 
     init() {
         setupAudioSession()
@@ -33,13 +36,14 @@ class MicrophoneManager: ObservableObject {
     private func setupAudioSession() {
         let audioSession = AVAudioSession.sharedInstance()
         do {
-            try audioSession.setCategory(.record, mode: .measurement, options: [.duckOthers, .mixWithOthers])
+            try audioSession.setCategory(
+                .record, mode: .measurement, options: [.duckOthers, .mixWithOthers])
             try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
             DispatchQueue.main.async {
                 self.errorMessage = "Failed to set up audio session: \(error.localizedDescription)"
             }
-            print("Error setting up audio session: \(error.localizedDescription)")
+            Self.default.error("Error setting up audio session: \(error.localizedDescription)")
         }
     }
 
@@ -56,12 +60,13 @@ class MicrophoneManager: ObservableObject {
             DispatchQueue.main.async {
                 self.errorMessage = "Microphone permission not granted."
             }
-            print("Microphone permission not granted.")
+            Self.default.warning("Microphone permission not granted.")
             return
         }
 
         audioEngine = AVAudioEngine()
         audioInputNode = audioEngine?.inputNode
+        pcmData = Data()
 
         guard let audioEngine = audioEngine, let audioInputNode = audioInputNode else {
             DispatchQueue.main.async {
@@ -76,9 +81,9 @@ class MicrophoneManager: ObservableObject {
             mSampleRate: 16000,
             mFormatID: kAudioFormatLinearPCM,
             mFormatFlags: kAudioFormatFlagIsSignedInteger | kAudioFormatFlagIsPacked,
-            mBytesPerPacket: 2, // 16-bit = 2 bytes
+            mBytesPerPacket: 2,  // 16-bit = 2 bytes
             mFramesPerPacket: 1,
-            mBytesPerFrame: 2, // 16-bit = 2 bytes
+            mBytesPerFrame: 2,  // 16-bit = 2 bytes
             mChannelsPerFrame: 1,
             mBitsPerChannel: 16,
             mReserved: 0
@@ -90,14 +95,15 @@ class MicrophoneManager: ObservableObject {
             return
         }
 
-        print("Microphone input format: \(inputFormat)")
-        print("Desired output format: \(outputFormat)")
+        Self.default.log("Microphone input format: \(inputFormat)")
+        Self.default.log("Desired output format: \(outputFormat)")
 
         // Create the audio converter once
         self.audioConverter = AVAudioConverter(from: inputFormat, to: outputFormat)
         if self.audioConverter == nil {
             DispatchQueue.main.async {
-                self.errorMessage = "Failed to create audio converter. Input: \(inputFormat), Output: \(outputFormat)"
+                self.errorMessage =
+                    "Failed to create audio converter. Input: \(inputFormat), Output: \(outputFormat)"
             }
             return
         }
@@ -106,10 +112,21 @@ class MicrophoneManager: ObservableObject {
         self.audioConverter?.sampleRateConverterQuality = AVAudioQuality.high.rawValue
 
         // Install a tap on the input node to capture audio
-        audioInputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) { [weak self] (buffer, time) in
+        audioInputNode.installTap(onBus: 0, bufferSize: 1024, format: inputFormat) {
+            [weak self] (buffer, time) in
             guard let self = self, let converter = self.audioConverter else { return }
 
-            let pcmBuffer = AVAudioPCMBuffer(pcmFormat: outputFormat, frameCapacity: AVAudioFrameCount(buffer.frameLength))!
+            // The frame capacity of the output buffer must be calculated based on the sample rate ratio.
+            let ratio =
+                inputFormat.sampleRate > 0 ? outputFormat.sampleRate / inputFormat.sampleRate : 1.0
+            let outputFrameCapacity = AVAudioFrameCount(ceil(Double(buffer.frameLength) * ratio))
+            guard
+                let pcmBuffer = AVAudioPCMBuffer(
+                    pcmFormat: outputFormat, frameCapacity: outputFrameCapacity)
+            else {
+                Self.default.error("Failed to create PCM buffer for conversion")
+                return
+            }
 
             var error: NSError? = nil
 
@@ -121,14 +138,20 @@ class MicrophoneManager: ObservableObject {
             converter.convert(to: pcmBuffer, error: &error, withInputFrom: inputBlock)
 
             if let error = error {
-                print("Error during conversion: \(error.localizedDescription)")
+                Self.default.error("Error during conversion: \(error.localizedDescription)")
                 return
             }
 
             // Convert AVAudioPCMBuffer to Data
-            let channelData = pcmBuffer.int16ChannelData![0]
+            guard let channelData = pcmBuffer.int16ChannelData else {
+                Self.default.error("Error: Failed to get channel data from PCM buffer.")
+                return
+            }
             let frameLength = Int(pcmBuffer.frameLength)
-            let data = Data(bytes: channelData, count: frameLength * MemoryLayout<Int16>.size)
+            let data = Data(bytes: channelData[0], count: frameLength * MemoryLayout<Int16>.size)
+
+            // Append to pcmData for saving
+            self.pcmData?.append(data)
 
             // Yield the audio data to the AsyncStream
             self.audioStreamContinuation?.yield(data)
@@ -141,12 +164,12 @@ class MicrophoneManager: ObservableObject {
             DispatchQueue.main.async {
                 self.errorMessage = nil
             }
-            print("Microphone recording started.")
+            Self.default.log("Microphone recording started.")
         } catch {
             DispatchQueue.main.async {
                 self.errorMessage = "Failed to start audio engine: \(error.localizedDescription)"
             }
-            print("Error starting audio engine: \(error.localizedDescription)")
+            Self.default.error("Error starting audio engine: \(error.localizedDescription)")
         }
     }
 
@@ -158,18 +181,45 @@ class MicrophoneManager: ObservableObject {
         audioEngine = nil
         audioInputNode = nil
         isRecording = false
-        audioStreamContinuation?.finish() // Signal that the stream is complete
+        pcmData = nil
+        audioStreamContinuation?.finish()  // Signal that the stream is complete
         audioStreamContinuation = nil
         audioStream = nil
-        audioConverter = nil // Clear the converter when stopping
-        print("Microphone recording stopped.")
+        audioConverter = nil  // Clear the converter when stopping
+        Self.default.log("Microphone recording stopped.")
+    }
+
+    func saveRecording() -> String? {
+        guard let data = pcmData, !data.isEmpty else {
+            Self.default.warning("No PCM data to save.")
+            return nil
+        }
+
+        let fileManager = FileManager.default
+        let documentDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd-HHmmss"
+        let dateString = dateFormatter.string(from: Date())
+        let fileName = "recording-\(dateString).pcm"
+
+        let fileURL = documentDirectory.appendingPathComponent(fileName)
+
+        do {
+            try data.write(to: fileURL)
+            Self.default.log("Saved PCM data to \(fileURL.path)")
+            return fileName
+        } catch {
+            Self.default.error("Error saving PCM data: \(error.localizedDescription)")
+            return nil
+        }
     }
 
     func pauseRecording() {
         guard isRecording else { return }
         audioEngine?.pause()
         isRecording = false
-        print("Microphone recording paused.")
+        Self.default.log("Microphone recording paused.")
     }
 
     func resumeRecording() {
@@ -177,12 +227,12 @@ class MicrophoneManager: ObservableObject {
         do {
             try audioEngine?.start()
             isRecording = true
-            print("Microphone recording resumed.")
+            Self.default.log("Microphone recording resumed.")
         } catch {
             DispatchQueue.main.async {
                 self.errorMessage = "Failed to resume audio engine: \(error.localizedDescription)"
             }
-            print("Error resuming audio engine: \(error.localizedDescription)")
+            Self.default.error("Error resuming audio engine: \(error.localizedDescription)")
         }
     }
 }

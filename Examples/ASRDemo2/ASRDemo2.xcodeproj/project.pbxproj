@@ -28,9 +28,22 @@
 		1B8F31AF2EB9DE570003E969 /* ASRDemo2.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ASRDemo2.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		1BBFC7502EC39D830083A772 /* Exceptions for "ASRDemo2" folder in "ASRDemo2" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 1B8F31AE2EB9DE570003E969 /* ASRDemo2 */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		1B8F31B12EB9DE570003E969 /* ASRDemo2 */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				1BBFC7502EC39D830083A772 /* Exceptions for "ASRDemo2" folder in "ASRDemo2" target */,
+			);
 			path = ASRDemo2;
 			sourceTree = "<group>";
 		};
@@ -283,6 +296,7 @@
 				DEVELOPMENT_TEAM = 25457GZ44Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ASRDemo2/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This App need Microphone";
@@ -319,6 +333,7 @@
 				DEVELOPMENT_TEAM = 25457GZ44Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ASRDemo2/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "";
 				INFOPLIST_KEY_LSApplicationCategoryType = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This App need Microphone";
